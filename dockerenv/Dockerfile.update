@@ -1,0 +1,30 @@
+# 基础镜像
+FROM dnn-dev-env
+
+
+# 配置pip使用阿里云镜像加速器
+RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
+
+# 复制requirements文件
+COPY requirement.txt /app/
+
+# 安装Python依赖包 - 优先使用本地缓存，如果不存在则从PyPI下载
+RUN pip install --cache-dir /root/.cache/pip -r requirement.txt
+
+# 创建jupyter配置目录
+RUN mkdir -p /root/.jupyter
+
+# 配置jupyter
+RUN echo "y" | jupyter notebook --generate-config
+RUN echo "c.NotebookApp.ip = '0.0.0.0'" >> /root/.jupyter/jupyter_notebook_config.py
+RUN echo "c.NotebookApp.port = 8080" >> /root/.jupyter/jupyter_notebook_config.py
+RUN echo "c.NotebookApp.open_browser = False" >> /root/.jupyter/jupyter_notebook_config.py
+RUN echo "c.NotebookApp.allow_root = True" >> /root/.jupyter/jupyter_notebook_config.py
+RUN echo "c.NotebookApp.token = '2LGxaqcRKXiuStHS:I0TTRJsOTo4yCfeX5UwRk42l6uQ'" >> /root/.jupyter/jupyter_notebook_config.py
+RUN echo "c.NotebookApp.password = ''" >> /root/.jupyter/jupyter_notebook_config.py
+
+# 暴露端口
+EXPOSE 8080
+
+# 启动命令
+CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8080", "--no-browser", "--allow-root"]
