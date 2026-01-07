@@ -1,5 +1,5 @@
 # Base: TensorFlow 2.3.0 CPU image
-FROM tensorflow/tensorflow:2.3.0
+FROM tensorflow/tensorflow:2.9.1
 
 # Environment setup
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -28,7 +28,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip toolchain (kept conservative for TF 2.3 era compatibility)
-RUN python -m pip install --upgrade "pip<23" setuptools wheel
+# Use setuptools<65 to avoid wrapt build issues
+RUN python -m pip install --upgrade "pip<23" "setuptools<65" wheel
 
 # Workspace directory
 WORKDIR /workspace
