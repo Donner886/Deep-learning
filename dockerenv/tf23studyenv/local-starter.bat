@@ -20,5 +20,5 @@ REM If not running, start a new container
 docker run --rm ^
     -p 8888:8888 ^
     -v d:\AI-learning\Deep-learning:/workspace ^
-    --name tf23studyenv_local tf291:0.0.1
+    --name tf23studyenv_local cnn_tf_jupyter:tf29-v01 
 
