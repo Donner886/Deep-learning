@@ -13,4 +13,4 @@ fi
 docker run --rm \
     -p 8888:8888 \
     -v /Users/madongdong/Deep-learning:/workspace \
-    --name tf23studyenv_local tf23:v0.0.2 
+    --name tf23studyenv_local tf29:v0.0.2 
