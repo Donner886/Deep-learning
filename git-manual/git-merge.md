@@ -1,3 +1,6 @@
+### Use "git add <file>...." to include in what will be committed.
+
+
 ## Git Merge 与 Rebase 完全指南
 
 *分支实际上是什么，分支只是一个指向提交的指针* 
@@ -5,9 +8,38 @@ cat .git/refs/heads/master
 # 输出：a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0 
 # 这就是一个 commit SHA 值
 
-分支 = 指向某个提交的可移动指针, 
-HEAD = 指向当前所在分支的指针
+分支 = 指向某个提交的可移动指针,  
+HEAD = 指向当前所在分支的指针, HEAD指的是当前分支的最新提交
 提交 = 包含代码快照、父提交引用、作者信息等的对象
+
+A branch (e.g. master) is a named, movable pointer to a commit, stored under refs/heads/....
+HEAD is your current position pointer: usually it points to a branch name (symbolic ref), not directly to a commit.
+So the usual chain is: HEAD → master → latest commit.
+When you git commit on a normal branch, Git moves that branch forward, and HEAD follows because it points to that branch.
+When you git switch <branch>, HEAD is repointed to another branch.
+In detached HEAD state (git switch --detach <commit>), HEAD points directly to a commit; no branch moves with new commits unless you create one.
+Connection: both participate in locating “where you are” in history.
+Difference: branch = long-lived named history pointer; HEAD = current checkout context.
+
+|git branch的常见用法，使用频率最高的几个用法|说明|
+|-|-|
+|git branch 主要用来 查看， 创建， 删除， 重命名分支|
+|查看| git branch: 查看本地分支, 会列出本地分支，当前分支前面会加*  |
+|查看| git branch -a: 查看本地分支 +  远程分支, 会列出本地分支，当前分支前面会加*  |
+|查看| git branch -r: 只查看远程分支，当前分支前面会加*  |
+|创建|git branch <branch> 创建分支不切换，更常见的工作流其实是“创建并切换”，一般大家会用 git switch -c <branch>; 仅仅切换为 git switch <branch>|
+|删除| 删除本地分支（已合并的安全删法 git branch -d <branch> |
+|删除| 强制删除（确认不要了才用） git branch -D <branch> |
+|重命名| 重命名当前分支 git branch -m new-name  |
+|重命名| 重命名指定分支 git branch -m old-name new-name|
+
+
+
+
+
+
+
+
 
 ```bash
 # 查看所有分支及其指向的提交
