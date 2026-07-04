@@ -121,9 +121,17 @@ def draw_boxes(image, boxes, box_classes, class_names, scores=None):
             text_origin = np.array([left, top + 1])
 
         # My kingdom for a good redistributable image drawing library.
-        for i in range(thickness):
-            draw.rectangle(
-                [left + i, top + i, right - i, bottom - i], outline=colors[c])
+        # Draw rectangle with thickness, ensuring coordinates remain valid
+        max_thickness = min(thickness, (right - left) // 2, (bottom - top) // 2)
+        for i in range(max(1, max_thickness)):
+            try:
+                draw.rectangle(
+                    [left + i, top + i, right - i, bottom - i], outline=colors[c])
+            except ValueError:
+                # If box is too small, just draw with i=0
+                draw.rectangle(
+                    [left, top, right, bottom], outline=colors[c])
+                break
         draw.rectangle(
             [tuple(text_origin), tuple(text_origin + label_size)],
             fill=colors[c])
