@@ -6,6 +6,19 @@ Softmax turns a list of scores into a probability list that adds up to $1$.
 
 If the scores are bigger, the probabilities become bigger too. It does not make a hard decision immediately. Instead, it says, “this one is most likely, but the others still have some chance.”
 
+## Softmax diagram
+Here is the basic flow:
+
+```mermaid
+flowchart LR
+    A[Raw scores or logits\n2, 1, 0] --> B[Exponentiate\ne^2, e^1, e^0]
+    B --> C[Add them up\nDenominator]
+    C --> D[Divide each value by the total]
+    D --> E[Probabilities\n0.665, 0.245, 0.090]
+```
+
+This picture is the whole softmax idea in one line: scores go in, probabilities come out.
+
 ## Why it is called softmax
 Think of the usual max function:
 
@@ -90,6 +103,21 @@ So you can remember it like this:
 - Restaurant C: $9.0\%$
 
 The best choice gets the most probability, but the others are still possible.
+
+```mermaid
+flowchart LR
+    A[Choose lunch] --> B[Give each option a score]
+    B --> C[Apply softmax]
+    C --> D[Pick the most likely option]
+
+    B1[Restaurant A\nscore = 2] --> B
+    B2[Restaurant B\nscore = 1] --> B
+    B3[Restaurant C\nscore = 0] --> B
+
+    D1[Most likely: Restaurant A\n66.5%] --> D
+```
+
+This is the same idea as the formula: better lunch options get higher scores, and softmax turns them into chances.
 
 ## Another easy example: choosing a route home
 Imagine three routes:
