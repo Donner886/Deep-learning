@@ -1,160 +1,159 @@
 
 # Softmax
 
+## One-sentence idea
+Softmax turns a list of scores into a probability list that adds up to $1$.
 
-## The origin and Name Meaning (why it is called softmax)
-The softmax function is a generalization of the logistic function to multiple dimensions. 
-It is widely used in machine learning and deep learing and LLM fields. 
-It takes a vector of real numbers and transforms it into a probability distribution over multiple classes. 
-The name "softmax" comes from the fact that it "softens" the maximum function, allowing for a smooth transition between the highest score and the others, rather than making a hard decision.
+If the scores are bigger, the probabilities become bigger too. It does not make a hard decision immediately. Instead, it says, “this one is most likely, but the others still have some chance.”
 
+## Why it is called softmax
+Think of the usual max function:
 
+$$
+\max([2, 1, 0]) = 2
+$$
 
-## Where does it come from?
+That gives only one winner. Softmax is a softer version of that idea:
 
-The softmax function is the Boltzmann distribution applied to a finite set of scores.
+- the biggest score gets the largest probability
+- the other scores are not thrown away
+- the output is smooth, not a hard yes/no choice
 
-In statistical mechanics, the Boltzmann distribution （波兹曼分布） gives the probability of a system being in state $i$ with energy $E_i$:
-在数学上，波兹曼分布函数（更广泛的形式为Gibbs 吉布斯分布）在统计学和机器学习中有被成为*对数-线性模型*； 在深度学习中波兹曼分布被用于随机神经网络的采样分布。
+So “softmax” means “soft maximum”.
 
-什么是对数-线性模型？对数-线性模型是指模型的输出是输入特征的线性组合的指数函数。也就是说，模型的输出是输入特征的加权和，然后通过指数函数进行转换。对数-线性模型在统计学和机器学习中被广泛应用于分类、回归和概率建模等任务。
+## The core formula
 
+For scores $z_1, z_2, \dots, z_n$:
+
+$$
+\mathrm{softmax}(z_i) = \frac{e^{z_i}}{\sum_{j=1}^{n} e^{z_j}}
+$$
+
+What this does:
+
+- exponentials stretch the difference between scores
+- the denominator normalises everything so the total becomes $1$
+
+That is why the result can be read as probabilities.
+
+## Where it comes from
+Softmax is closely related to the Boltzmann distribution from physics.
+
+In physics, a lower-energy state is more likely:
 
 $$
 P(i) = \frac{e^{-E_i/(kT)}}{\sum_j e^{-E_j/(kT)}}
 $$
 
-where:
-- $T$ is the temperature
-- $k$ is Boltzmann's constant
-- the denominator normalises the probabilities so they sum to $1$
-
-In machine learning, we usually start with scores or logits $z_i$ rather than energies.  
+In machine learning, we usually work with scores or logits instead of energy:
 
 $$
-E_i \propto -z_i
+z_i \approx -E_i
 $$
 
-Substituting that into the Boltzmann form gives:
+So softmax is basically the same idea rewritten for model scores:
 
 $$
 P(i) = \frac{e^{z_i/T}}{\sum_j e^{z_j/T}}
 $$
 
-This is exactly the softmax function with temperature $T$:
+That is why softmax is often described as the machine-learning version of the Boltzmann distribution.
+
+## A daily-life memory hook
+Imagine choosing lunch after work.
+
+You have three options:
+
+- Restaurant A: your favourite food and close by
+- Restaurant B: decent food, a bit farther
+- Restaurant C: okay, but not exciting
+
+You do not always choose A with 100% certainty. You are just much more likely to choose A.
+
+Suppose you give the restaurants scores:
 
 $$
-\mathrm{softmax}(z_i) = \frac{e^{z_i/T}}{\sum_j e^{z_j/T}}
+[2, 1, 0]
 $$
 
-So the connection is simple:
-
-- Boltzmann distribution: probabilities from energies
-- Softmax: probabilities from logits
-- Relationship: logits act like negative energies
-
-## Why this works
-
-- Exponentials 指数 make larger scores much more likely
-    (Exponential: The standard exponential function is a mathematical function written in the form $f(x) = ab^x $, where the variable $x$ is in the exponent position. )   
-- Normalisation ensures all outputs are between $0$ and $1$
-- The probabilities sum to $1$, so the output is a valid distribution
-
-## Role of temperature
-- Small $T$: the distribution becomes sharper, favouring the largest logit
-- Large $T$: the distribution becomes flatter, making probabilities more uniform
- 
-### Diagram: temperature controls sharpness
-
-Using the same logits $[2,1,0]$:
-
-```mermaid
-xychart-beta
-    title "Softmax probabilities vs temperature (logits [2,1,0])"
-    x-axis [Class A, Class B, Class C]
-    y-axis "Probability" 0 --> 1
-    bar "T = 0.5 (sharp)" [0.867, 0.117, 0.016]
-    bar "T = 1.0 (baseline)" [0.665, 0.245, 0.090]
-    bar "T = 2.0 (flat)" [0.506, 0.307, 0.186]
-```
-
-Interpretation:
-- As $T$ decreases, probability mass concentrates on the top logit (more confident/peaky).
-- As $T$ increases, probabilities spread more evenly across classes (more uncertain/smoother).
- 
-
-## why Boltzmann distribution is generalized to Softmax
-In softmax, the scores are just numbers that measure how good each option is or how much you prefer one option over another.  
-A score can mean different things in different contexts: 
-1. In classification, a score is a model's raw output for each class
-2. In recommendation, a score is how relevant an item seems
-3. In search ranking, a score is how well a result matches the query
-4. In decision making, a score is how attractive an action is
-So the word “score” here really means something like preference value, compatibility value, or logit.
-
-
-
-## Real-life example
-Imagine you are choosing lunch after work. You have three options:
-
-- Restaurant A: closest to you and your favourite food
-- Restaurant B: a bit farther away but still good
-- Restaurant C: not very attractive today
-
-You do not choose them with absolute certainty. You are more likely to go to the best option, but you may still pick another one if the difference is not huge.
-
-Suppose you assign desirability scores:
-
-- Restaurant A: $2$
-- Restaurant B: $1$
-- Restaurant C: $0$
-
-If $T = 1$, softmax gives:
+Then softmax gives:
 
 $$
-\mathrm{softmax}([2,1,0]) =
-\frac{[e^2,e^1,e^0]}{e^2+e^1+e^0}
-\approx [0.665, 0.245, 0.090]
+\frac{[e^2, e^1, e^0]}{e^2 + e^1 + e^0}
+= [0.665, 0.245, 0.090]
+$$
+
+So you can remember it like this:
+
+- Restaurant A: $66.5\%$
+- Restaurant B: $24.5\%$
+- Restaurant C: $9.0\%$
+
+The best choice gets the most probability, but the others are still possible.
+
+## Another easy example: choosing a route home
+Imagine three routes:
+
+- Route A: fastest
+- Route B: slightly slower but reliable
+- Route C: longest, but scenic
+
+If the scores are $[3, 2, 0]$, then softmax gives approximately:
+
+$$
+[0.705, 0.259, 0.035]
 $$
 
 This means:
 
-- Restaurant A gets about $66.5\%$ chance
-- Restaurant B gets about $24.5\%$ chance
-- Restaurant C gets about $9\%$ chance
+- Route A is most likely
+- Route B still has a real chance
+- Route C is unlikely, but not impossible
 
-So the best choice is most likely, but the other choices are still possible. That is exactly the Boltzmann idea: better options are exponentially more likely, not absolutely forced.
+That is exactly what softmax is good at: ranking choices without forcing a hard winner too early.
 
-## Another example: choosing a route home
+## Where softmax is used in daily machine-learning tasks
+Softmax appears whenever a model must choose between multiple options:
 
-Imagine you are driving home and you have three routes:
+1. Classifying an image as cat, dog, or bird
+2. Picking the next word in a language model
+3. Ranking search results
+4. Recommending a video, song, or product
+5. Choosing one action from several possible actions in reinforcement learning
 
-- Route A: fastest, but sometimes crowded
-- Route B: slightly slower, but more reliable
-- Route C: longest, but scenic
+In all of these cases, the model first produces raw scores, then softmax turns them into probabilities.
 
-You usually prefer the fastest route, but if traffic looks bad you may still choose another one. That matches the Boltzmann idea well: the best option dominates, but alternatives remain available.
+## Temperature: how confident should the model be?
+**Temperature controls how sharp or flat the probabilities are.**
 
-If you score the routes as $[3, 2, 0]$, then with $T = 1$:
+- Small $T$: more peaky, one choice dominates
+- Large $T$: flatter, choices become closer together
 
-$$
-\mathrm{softmax}([3,2,0])
-= \frac{[e^3,e^2,e^0]}{e^3+e^2+e^0}
-\approx [0.705, 0.259, 0.035]
-$$
+Using the same scores $[2, 1, 0]$:
 
-So Route A is most likely, Route B still has a decent chance, and Route C is unlikely but not impossible.
+```mermaid
+xychart-beta
+    title "Softmax probabilities vs temperature (scores [2,1,0])"
+    x-axis [Option A, Option B, Option C]
+    y-axis "Probability" 0 --> 1
+    bar "T = 0.5" [0.867, 0.117, 0.016]
+    bar "T = 1.0" [0.665, 0.245, 0.090]
+    bar "T = 2.0" [0.506, 0.307, 0.186]
+```
 
-## Another example: picking a video recommendation
+Memory trick:
 
-Think about a streaming app recommending three videos:
+- lower temperature = more confident
+- higher temperature = more exploratory
 
-- Video A: very relevant to your taste
-- Video B: somewhat relevant
-- Video C: not very relevant
+## What to remember in one line
+Softmax is a way to turn “how good each option looks” into “how likely each option is”, with the best option getting the most weight but not all of it.
 
-The app does not need to always show only Video A. A softmax-like rule turns relevance scores into probabilities, so the best match is shown most often, but some diversity is preserved.
+## Quick recall formula
+If you forget everything else, remember this pattern:
 
-If the scores are $[4, 2, 1]$, then softmax makes the first video much more likely than the others. This is useful because it keeps the system from being too rigid.
+```text
+score -> e^(score) -> divide by total -> probabilities
+```
 
-In one sentence: softmax is the Boltzmann distribution rewritten for machine learning, where model scores play the role of negative energy.
+That is the whole idea.
